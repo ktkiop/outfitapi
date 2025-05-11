@@ -27,4 +27,5 @@ def classify():
         return jsonify({"error": "找不到符合條件的穿搭"}), 404
 
 if __name__ == "__main__":
-    app.run(debug=True)
+    app.run(host="0.0.0.0", port=10000)
+
