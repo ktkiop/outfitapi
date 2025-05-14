@@ -1,4 +1,5 @@
-flask
+Flask
 pandas
-numpy
 requests
+numpy
+scikit-learn
