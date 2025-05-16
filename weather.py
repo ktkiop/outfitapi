@@ -1,4 +1,5 @@
 import requests
+import os
 
 def fetch_taipei_temperature():
     """
@@ -8,9 +9,10 @@ def fetch_taipei_temperature():
     Returns:
         tuple: (溫度字串, 分類字串) or fallback ("無法取得氣溫", "舒適")
     """
+    api_key = os.getenv("API_KEY")
     url = "https://opendata.cwa.gov.tw/api/v1/rest/datastore/O-A0001-001"
     params = {
-        "Authorization": "CWA-7B2A9EDB-F7EA-4CF0-8611-447C600805D2",
+        "Authorization": "api_key",
         "format": "JSON",
         "StationId": "C0A980"
     }
