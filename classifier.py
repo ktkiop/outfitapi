@@ -14,13 +14,16 @@ def classify_style_temp(sentence):
     elif "簡約" in sentence or "極簡" in sentence:
         style = "簡約"
 
-    if "冷" in sentence or "怕冷" in sentence:
+    
+    if "冷" in sentence or "怕冷" in sentence or "好冷" in sentence:
         temp = "冷"
-    elif "不熱" in sentence or "不會熱" in sentence or "不要太熱" in sentence:
-        temp = "舒適"
-    elif "熱" in sentence:
+    elif "熱" in sentence or "悶" in sentence or "流汗" in sentence or "好熱":
         temp = "熱"
-    elif "剛好" in sentence or "涼爽" in sentence or "舒適" in sentence:
+    elif "不冷" in sentence or "不熱" in sentence or "剛好" in sentence or "天氣很好":
+        temp = "舒適"
+    elif "不會熱" in sentence or "不會冷" in sentence or "不會悶" in sentence:
+        temp = "舒適"
+    elif "天氣好" in sentence or "好天氣" in sentence:
         temp = "舒適"
 
     return style, temp

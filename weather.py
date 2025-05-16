@@ -1,32 +1,62 @@
 import requests
 
 def fetch_taipei_temperature():
-    url = (
-        "https://opendata.cwa.gov.tw/api/v1/rest/datastore/F-C0032-001"
-        "?Authorization=CWA-7B2A9EDB-F7EA-4CF0-8611-447C600805D2"
-        "&format=JSON"
-        "&locationName=臺北市"
-        "&elementName=MinT,MaxT"
-    )
+    """
+    從中央氣象署 O-A0001-001 服務取得 C0A980（社子）測站的即時氣溫，
+    並依據氣溫分類為 冷 / 舒適 / 熱。
+
+    Returns:
+        tuple: (溫度字串, 分類字串) or fallback ("無法取得氣溫", "舒適")
+    """
+    url = "https://opendata.cwa.gov.tw/api/v1/rest/datastore/O-A0001-001"
+    params = {
+        "Authorization": "CWA-7B2A9EDB-F7EA-4CF0-8611-447C600805D2",
+        "format": "JSON",
+        "StationId": "C0A980"
+    }
 
     try:
-        res = requests.get(url, timeout=5)
-        data = res.json()
-        elements = data["records"]["location"][0]["weatherElement"]
+        print("🌐 請求社子測站氣溫資料...")
+        response = requests.get(url, params=params, timeout=8)
+        response.raise_for_status()
+        data = response.json()
 
-        min_temp = int(elements[0]["time"][0]["parameter"]["parameterName"])
-        max_temp = int(elements[1]["time"][0]["parameter"]["parameterName"])
-        avg = (min_temp + max_temp) / 2
+        stations = data.get("records", {}).get("Station", [])
 
-        if avg < 16:
-            category = "冷"
-        elif avg > 26:
-            category = "熱"
-        else:
-            category = "舒適"
+        if not stations:
+            print("⚠️ 社子站資料為空")
+            return "無法取得氣溫", "舒適"
 
-        return f"{min_temp}~{max_temp}°C", category
+        for station in stations:
+            if station.get("StationId") != "C0A980":
+                continue
+
+            weather_element = station.get("WeatherElement", {})
+            temp = weather_element.get("AirTemperature")
+
+            if temp is None:
+                print("⚠️ 社子站無氣溫資料")
+                return "無法取得氣溫", "舒適"
+
+            temp_value = float(temp)
+            print(f"🌡 社子站即時氣溫：{temp_value:.1f}°C")
+
+            if temp_value < 16:
+                return f"{temp_value:.1f}°C", "冷"
+            elif temp_value > 26:
+                return f"{temp_value:.1f}°C", "熱"
+            else:
+                return f"{temp_value:.1f}°C", "舒適"
+
+        print("❓ 找不到社子測站資料")
+        return "無法取得氣溫", "舒適"
 
     except Exception as e:
-        print(f"❌ 氣象 API 錯誤：{e}")
+        print(f"❌ 錯誤：{e}")
         return "無法取得氣溫", "舒適"
+
+
+# ✅ 本地測試用
+if __name__ == "__main__":
+    raw_temp, category = fetch_taipei_temperature()
+    print("✅ 測試結果：", raw_temp, category)
