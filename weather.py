@@ -1,18 +1,15 @@
 import requests
-import os
 
 def fetch_taipei_temperature():
     """
     從中央氣象署 O-A0001-001 服務取得 C0A980（社子）測站的即時氣溫，
     並依據氣溫分類為 冷 / 舒適 / 熱。
-
     Returns:
         tuple: (溫度字串, 分類字串) or fallback ("無法取得氣溫", "舒適")
     """
-    api_key = os.getenv("API_KEY")
     url = "https://opendata.cwa.gov.tw/api/v1/rest/datastore/O-A0001-001"
     params = {
-        "Authorization": "api_key",
+        "Authorization": "CWA-7B2A9EDB-F7EA-4CF0-8611-447C600805D2",  # ← 這裡是你的固定 API 金鑰
         "format": "JSON",
         "StationId": "C0A980"
     }
@@ -58,7 +55,7 @@ def fetch_taipei_temperature():
         return "無法取得氣溫", "舒適"
 
 
-# ✅ 本地測試用
+#  本地測試用
 if __name__ == "__main__":
     raw_temp, category = fetch_taipei_temperature()
     print("✅ 測試結果：", raw_temp, category)
