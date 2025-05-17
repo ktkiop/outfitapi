@@ -2,18 +2,14 @@ import os
 import requests
 
 def fetch_taipei_temperature():
-    """
-    從中央氣象署 O-A0001-001 服務取得 C0A980（社子）測站的即時氣溫，
-    並依據氣溫分類為 冷 / 舒適 / 熱。
-    Returns:
-        tuple: (溫度字串, 分類字串) or fallback ("無法取得氣溫", "舒適")
-    """
+    import os
+    import requests
+
     api_key = os.getenv("API_KEY") or "CWA-7B2A9EDB-F7EA-4CF0-86I1-447C600805D2"
     print(f"🛠 使用中的 API_KEY：{api_key}")
 
     if not api_key:
-        print("❌ 沒有從環境變數取得 API_KEY")
-        return "無法取得氣溫", "舒適"
+        raise RuntimeError("💥 沒有拿到 API_KEY，Render 根本沒吃到環境變數")
 
     url = "https://opendata.cwa.gov.tw/api/v1/rest/datastore/O-A0001-001"
     params = {
@@ -22,45 +18,26 @@ def fetch_taipei_temperature():
         "StationId": "C0A980"
     }
 
-    try:
-        print("🌐 請求社子測站氣溫資料...")
-        response = requests.get(url, params=params, timeout=10)
-        response.raise_for_status()
-        data = response.json()
+    print("📡 正在發出請求給氣象局 API...")
 
-        stations = data.get("records", {}).get("Station", [])
-        if not stations:
-            print("⚠️ 社子站資料為空")
-            return "無法取得氣溫", "舒適"
+    response = requests.get(url, params=params, timeout=5)
 
-        for station in stations:
-            if station.get("StationId") != "C0A980":
-                continue
+    print(f"🔁 API 回應狀態碼：{response.status_code}")
+    print(f"📦 API 回傳資料：{response.text[:300]}...")
 
-            weather_element = station.get("WeatherElement", {})
-            temp = weather_element.get("AirTemperature")
+    data = response.json()
+    station_data = data['records']['location'][0]
+    temp_str = station_data['weatherElement'][3]['elementValue']
+    temp_float = float(temp_str)
 
-            if temp is None:
-                print("⚠️ 社子站無氣溫資料")
-                return "無法取得氣溫", "舒適"
+    print(f"🌡 取得社子氣溫：{temp_float}°C")
 
-            temp_value = float(temp)
-            print(f"🌡 社子站即時氣溫：{temp_value:.1f}°C")
-
-            if temp_value < 16:
-                return f"{temp_value:.1f}°C", "冷"
-            elif temp_value > 26:
-                return f"{temp_value:.1f}°C", "熱"
-            else:
-                return f"{temp_value:.1f}°C", "舒適"
-
-        print("❓ 找不到社子測站資料")
-        print("📦 取得回傳資料：", data)
-        return "無法取得氣溫", "舒適"
-
-    except Exception as e:
-        print(f"❌ 錯誤：{e}")
-        return "無法取得氣溫", "舒適"
+    if temp_float <= 17:
+        return (f"{temp_float:.1f}°C", "冷")
+    elif temp_float >= 26:
+        return (f"{temp_float:.1f}°C", "熱")
+    else:
+        return (f"{temp_float:.1f}°C", "舒適")
     
 
 # ✅ 本地測試用
