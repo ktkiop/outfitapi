@@ -9,6 +9,7 @@ def fetch_taipei_temperature():
         tuple: (溫度字串, 分類字串) or fallback ("無法取得氣溫", "舒適")
     """
     api_key = os.getenv("API_KEY")
+    print(f"🔑 Render 讀到的 API_KEY：{api_key}")
     if not api_key:
         print("❌ 沒有從環境變數取得 API_KEY")
         return "無法取得氣溫", "舒適"
@@ -53,12 +54,13 @@ def fetch_taipei_temperature():
                 return f"{temp_value:.1f}°C", "舒適"
 
         print("❓ 找不到社子測站資料")
+        print("📦 取得回傳資料：", data)
         return "無法取得氣溫", "舒適"
 
     except Exception as e:
         print(f"❌ 錯誤：{e}")
         return "無法取得氣溫", "舒適"
-
+    
 
 # ✅ 本地測試用
 if __name__ == "__main__":
