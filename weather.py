@@ -8,8 +8,9 @@ def fetch_taipei_temperature():
     Returns:
         tuple: (溫度字串, 分類字串) or fallback ("無法取得氣溫", "舒適")
     """
-    api_key = os.getenv("API_KEY")
-    print(f"🔑 Render 讀到的 API_KEY：{api_key}")
+    api_key = os.getenv("API_KEY") or "CWA-7B2A9EDB-F7EA-4CF0-86I1-447C600805D2"
+    print(f"🛠 使用中的 API_KEY：{api_key}")
+
     if not api_key:
         print("❌ 沒有從環境變數取得 API_KEY")
         return "無法取得氣溫", "舒適"
