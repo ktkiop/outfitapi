@@ -1,3 +1,4 @@
+import os
 import requests
 
 def fetch_taipei_temperature():
@@ -7,21 +8,25 @@ def fetch_taipei_temperature():
     Returns:
         tuple: (溫度字串, 分類字串) or fallback ("無法取得氣溫", "舒適")
     """
+    api_key = os.getenv("API_KEY")
+    if not api_key:
+        print("❌ 沒有從環境變數取得 API_KEY")
+        return "無法取得氣溫", "舒適"
+
     url = "https://opendata.cwa.gov.tw/api/v1/rest/datastore/O-A0001-001"
     params = {
-        "Authorization": "CWA-7B2A9EDB-F7EA-4CF0-8611-447C600805D2",  # ← 這裡是你的固定 API 金鑰
+        "Authorization": api_key,
         "format": "JSON",
         "StationId": "C0A980"
     }
 
     try:
         print("🌐 請求社子測站氣溫資料...")
-        response = requests.get(url, params=params, timeout=8)
+        response = requests.get(url, params=params, timeout=10)
         response.raise_for_status()
         data = response.json()
 
         stations = data.get("records", {}).get("Station", [])
-
         if not stations:
             print("⚠️ 社子站資料為空")
             return "無法取得氣溫", "舒適"
@@ -55,7 +60,7 @@ def fetch_taipei_temperature():
         return "無法取得氣溫", "舒適"
 
 
-#  本地測試用
+# ✅ 本地測試用
 if __name__ == "__main__":
     raw_temp, category = fetch_taipei_temperature()
     print("✅ 測試結果：", raw_temp, category)
