@@ -13,31 +13,30 @@ def classify():
     data = request.get_json()
     text = data.get("text", "")
 
+    # 文字分析出風格與溫度（可選）
     style, temp = classify_style_temp(text)
-    print(f"🧠 使用者輸入：{text}")
-    print(f"🎯 分析結果：風格={style}, 使用者溫度關鍵字={temp}")
+    print(f"使用者輸入：{text}")
+    print(f"分析結果：風格 = {style}, 使用者溫度關鍵字 = {temp}")
 
-    # ✅ 抓氣溫（社子或台北測站）
+    # 抓即時氣溫
     temperature_raw, temp_category = fetch_taipei_temperature()
-
-    # 如果使用者沒指定溫度，就用氣象資料的分類
     temp = temp or temp_category
 
-    outfit = recommend_outfit(style, temp)
+    # 一次推薦多筆穿搭（最多 3 套、避免重複）
+    recommendations = []
+    used_images = set()
 
-    if outfit is None:
-        return jsonify({
-            "style": style,
-            "temperature": temp,
-            "temperature_raw": temperature_raw,  # ✅ 必須回傳這個
-            "outfit": None
-        })
+    for _ in range(3):
+        outfit = recommend_outfit(style, temp)
+        if outfit and outfit["圖片"] not in used_images:
+            recommendations.append(outfit)
+            used_images.add(outfit["圖片"])
 
     return jsonify({
         "style": style,
         "temperature": temp,
-        "temperature_raw": temperature_raw,  # ✅ 加在這裡
-        "outfit": outfit
+        "temperature_raw": temperature_raw,
+        "outfits": recommendations
     })
 
 
