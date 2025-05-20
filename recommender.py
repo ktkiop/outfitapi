@@ -1,23 +1,17 @@
-import pandas as pd
-import time
-import os
+import csv
+import random
 
-csv_path = os.path.join(os.path.dirname(__file__), "outfit_data.csv")
-df = pd.read_csv(csv_path, encoding="utf-8")
+def load_outfit_data():
+    data = []
+    with open("outfit_data.csv", newline='', encoding='utf-8') as csvfile:
+        reader = csv.DictReader(csvfile)
+        for row in reader:
+            data.append(row)
+    return data
 
-def recommend_outfit(style, temp):
-    filtered = df[(df["風格"] == style) & (df["溫度"] == temp)]
-
-    if filtered.empty:
+def recommend_outfit(style, temperature):
+    data = load_outfit_data()
+    filtered = [row for row in data if row["風格"] == style and row["溫度"] == temperature]
+    if not filtered:
         return None
-
-    seed = int(time.time() * 1000000) % 2**32
-    outfit = filtered.sample(n=1, random_state=seed).iloc[0]
-
-    return {
-        "上衣": outfit["上衣"],
-        "下著": outfit["下著"],
-        "鞋子": outfit["鞋子"],
-        "配件": outfit["配件"],
-        "圖片": outfit["圖片"]
-    }
+    return random.choice(filtered)

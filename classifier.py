@@ -1,29 +1,23 @@
-def classify_style_temp(sentence):
-    sentence = sentence.lower()
-    style = None
-    temp = None
+import joblib
 
-    if "甜" in sentence or "可愛" in sentence:
-        style = "可愛" if "可愛" in sentence else "甜酷"
-    elif "酷" in sentence:
-        style = "甜酷"
-    elif "文青" in sentence or "自然" in sentence:
-        style = "文青"
-    elif "優雅" in sentence or "氣質" in sentence:
-        style = "優雅"
-    elif "簡約" in sentence or "極簡" in sentence:
-        style = "簡約"
+# 載入模型與轉換器
+vectorizer = joblib.load("vectorizer.pkl")
 
-    
-    if "冷" in sentence or "怕冷" in sentence or "好冷" in sentence:
-        temp = "冷"
-    elif "熱" in sentence or "悶" in sentence or "流汗" in sentence or "好熱":
-        temp = "熱"
-    elif "不冷" in sentence or "不熱" in sentence or "剛好" in sentence or "天氣很好":
-        temp = "舒適"
-    elif "不會熱" in sentence or "不會冷" in sentence or "不會悶" in sentence:
-        temp = "舒適"
-    elif "天氣好" in sentence or "好天氣" in sentence:
-        temp = "舒適"
+style_model = joblib.load("style_model.pkl")
+style_encoder = joblib.load("style_encoder.pkl")
+
+temp_model = joblib.load("temp_model.pkl")
+temp_encoder = joblib.load("temp_encoder.pkl")
+
+def classify_style_temp(text):
+    vec = vectorizer.transform([text])
+
+    style_idx = style_model.predict(vec)[0]
+    temp_idx = temp_model.predict(vec)[0]
+
+    style = style_encoder.inverse_transform([style_idx])[0]
+    temp = temp_encoder.inverse_transform([temp_idx])[0]
 
     return style, temp
+# 這個函式會根據使用者的輸入文字分類風格與溫度
+# 它會使用之前訓練好的模型來預測風格與溫度

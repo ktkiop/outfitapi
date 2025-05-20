@@ -13,33 +13,34 @@ def classify():
     data = request.get_json()
     text = data.get("text", "")
 
-    # 文字分析出風格與溫度（可選）
-    style, temp = classify_style_temp(text)
-    print(f"使用者輸入：{text}")
-    print(f"分析結果：風格 = {style}, 使用者溫度關鍵字 = {temp}")
+    # 預測風格（溫度先忽略）
+    style, _ = classify_style_temp(text)
 
-    # 抓即時氣溫
-    temperature_raw, temp_category = fetch_taipei_temperature()
-    temp = temp or temp_category
+    # 取得即時天氣（第二個回傳值是分類結果：冷 / 舒適 / 熱）
+    _, temp = fetch_taipei_temperature()
 
-    # 一次推薦多筆穿搭（最多 3 套、避免重複）
-    recommendations = []
-    used_images = set()
+    # 若使用者說太熱 → 調高溫度分類
+    if any(kw in text for kw in ["太熱", "熱死", "悶", "中暑"]):
+        if temp == "冷":
+            temp = "舒適"
+        elif temp == "舒適":
+            temp = "熱"
 
-    for _ in range(3):
-        outfit = recommend_outfit(style, temp)
-        if outfit and outfit["圖片"] not in used_images:
-            recommendations.append(outfit)
-            used_images.add(outfit["圖片"])
+    # 若使用者說太冷 → 調低溫度分類
+    elif any(kw in text for kw in ["太冷", "冷死", "冷爆", "發抖"]):
+        if temp == "熱":
+            temp = "舒適"
+        elif temp == "舒適":
+            temp = "冷"
+
+    # 推薦穿搭
+    outfit = recommend_outfit(style, temp)
 
     return jsonify({
         "style": style,
         "temperature": temp,
-        "temperature_raw": temperature_raw,
-        "outfits": recommendations
+        "outfit": outfit
     })
 
-
-if __name__ == '__main__':
-    port = int(os.environ.get("PORT", 5000))
-    app.run(host='0.0.0.0', port=port)
+if __name__ == "__main__":
+    app.run(debug=True)
