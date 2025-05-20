@@ -15,3 +15,5 @@ def recommend_outfit(style, temperature):
     if not filtered:
         return None
     return random.choice(filtered)
+# 這個函式會根據使用者的風格和溫度推薦穿搭
+# 它會從 outfit_data.csv 中隨機選擇一套符合條件的穿搭

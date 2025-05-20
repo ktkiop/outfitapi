@@ -3,7 +3,6 @@ from classifier import classify_style_temp
 from recommender import recommend_outfit
 from weather import fetch_taipei_temperature
 from flask_cors import CORS
-import os
 
 app = Flask(__name__)
 CORS(app)
@@ -43,4 +42,6 @@ def classify():
     })
 
 if __name__ == "__main__":
-    app.run(debug=True)
+    import os
+    port = int(os.environ.get("PORT", 5000))
+    app.run(host="0.0.0.0", port=port)
