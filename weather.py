@@ -11,9 +11,10 @@ def fetch_taipei_temperature():
         temp = data["current_weather"]["temperature"]
         print(f"🌡 台北即時氣溫：{temp}°C")
 
-        if temp <= 18:
+        # 回傳 tuple（溫度字串, 溫度分類）
+        if temp <= 17:
             return f"{temp:.1f}°C", "冷"
-        elif temp >= 29:
+        elif temp >= 26:
             return f"{temp:.1f}°C", "熱"
         else:
             return f"{temp:.1f}°C", "舒適"
