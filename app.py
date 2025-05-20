@@ -1,6 +1,5 @@
 from flask import Flask, request, jsonify
-from classifier import classify_style_temp
-from recommender import recommend_outfit
+from recommender import recommend_outfit_by_keyword
 from weather import fetch_taipei_temperature
 from flask_cors import CORS
 
@@ -12,36 +11,18 @@ def classify():
     data = request.get_json()
     text = data.get("text", "")
 
-    # 預測風格（溫度先忽略）
-    style, _ = classify_style_temp(text)
-
-    # 取得即時天氣（第二個回傳值是分類結果：冷 / 舒適 / 熱）
-    _, temp = fetch_taipei_temperature()
-
-    # 若使用者說太熱 → 調高溫度分類
-    if any(kw in text for kw in ["太熱", "熱死", "悶", "中暑"]):
-        if temp == "冷":
-            temp = "舒適"
-        elif temp == "舒適":
-            temp = "熱"
-
-    # 若使用者說太冷 → 調低溫度分類
-    elif any(kw in text for kw in ["太冷", "冷死", "冷爆", "發抖"]):
-        if temp == "熱":
-            temp = "舒適"
-        elif temp == "舒適":
-            temp = "冷"
-
-    # 推薦穿搭
-    outfit = recommend_outfit(style, temp)
+    outfit, matched_style, matched_temp = recommend_outfit_by_keyword(text)
 
     return jsonify({
-        "style": style,
-        "temperature": temp,
+        "style": matched_style,
+        "temperature": matched_temp,
         "outfit": outfit
     })
 
-if __name__ == "__main__":
-    import os
-    port = int(os.environ.get("PORT", 5000))
-    app.run(host="0.0.0.0", port=port)
+@app.route("/weather", methods=["GET"])
+def weather():
+    temp_str = fetch_taipei_temperature()
+    return jsonify({"temperature": temp_str})
+
+if __name__ == '__main__':
+    app.run(host='0.0.0.0', port=5000)

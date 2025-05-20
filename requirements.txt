@@ -3,5 +3,5 @@ pandas
 requests
 numpy
 flask_cors
-joblib
-scikit-learn
+
+
