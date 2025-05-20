@@ -1,6 +1,15 @@
 import csv
 import random
 
+def load_outfit_data():
+    data = []
+    with open("outfit_data.csv", encoding="utf-8-sig") as f:
+        reader = csv.DictReader(f)
+        for row in reader:
+            data.append(row)
+    return data
+
+outfit_data = load_outfit_data()
 # 關鍵字對應到風格分類（依你定義的風格）
 style_keywords = {
     "甜酷": ["帥", "甜酷", "個性", "反差"],
