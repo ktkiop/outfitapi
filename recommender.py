@@ -4,11 +4,12 @@ import random
 # 讀取 CSV 檔案中的穿搭資料
 with open("outfit_data.csv", encoding="utf-8") as f:
     reader = csv.DictReader(f)
+    outfit_data = [dict((k.replace('\ufeff', ''), v) for k, v in row.items()) for row in reader]
     outfit_data = list(reader)
 
 # 關鍵字對應到風格分類
 style_keywords = {
-    "甜酷": ["帥", "甜酷", "個性", "反差"],
+    "甜酷": ["帥", "甜酷", "個性", "潮"],
     "可愛": ["可愛", "俏皮", "日系", "卡哇伊"],
     "文青": ["文青", "自然", "文藝", "靜謐"],
     "簡約": ["簡約", "極簡", "簡單", "乾淨"],
