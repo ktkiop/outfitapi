@@ -35,7 +35,7 @@ def fetch_taipei_temperature():
             return "無法取得氣溫", "舒適"
 
         # 依照數值分類氣溫
-        if temperature < 16:
+        if temperature < 17:
             category = "冷"
         elif temperature > 26:
             category = "熱"
