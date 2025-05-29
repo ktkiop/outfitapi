@@ -16,7 +16,7 @@ style_keywords = {
 
 temp_keywords = {
     "冷": ["冷", "寒", "發抖"],
-    "舒適": ["剛好", "不冷不熱", "舒適"],
+    "舒適": ["剛好", "不冷","不熱","不冷不熱" ,"舒適"],
     "熱": ["熱", "流汗", "悶"]
 }
 
@@ -35,7 +35,7 @@ def recommend_outfit_by_keyword(text):
             break
 
     if not matched_style:
-        matched_style = "甜酷"
+        matched_style = "可愛"
     if not matched_temp:
         matched_temp = "熱"
 
